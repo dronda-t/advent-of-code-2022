@@ -4,7 +4,7 @@ import java.security.MessageDigest
 /**
  * Reads lines from the given input txt file.
  */
-fun readInput(name: String) = Thread.currentThread().contextClassLoader.getResourceAsStream(name)
+fun readInput(name: String) = Thread.currentThread().contextClassLoader.getResourceAsStream("$name.txt")!!
     .reader()
     .readLines()
 
