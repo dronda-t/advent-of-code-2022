@@ -10,17 +10,17 @@ fun main() {
             val split = (line.length / 2)
             val compartment1 = line.substring(0, split).toHashSet()
             val compartment2 = line.substring(split, line.length).toHashSet()
-            compartment1.retainAll(compartment2)
+            val intersection = compartment1.intersect(compartment2)
 
-            compartment1.sumOf { priority(it) }
+            intersection.sumOf { priority(it) }
         }
     }
 
     fun part2(input: List<String>): Int {
         return input.chunked(3).sumOf { window ->
-            val commonLetter = HashSet<Char>(window[0].toSet())
-            window.forEach { commonLetter.retainAll(it.toSet()) }
-            priority(commonLetter.first())
+            val commonLetters = window.map { it.toSet() }
+                .reduce { acc, s -> acc.intersect(s) }
+            priority(commonLetters.first())
         }
     }
 
