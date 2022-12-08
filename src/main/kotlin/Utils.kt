@@ -8,6 +8,10 @@ fun readInput(name: String) = Thread.currentThread().contextClassLoader.getResou
     .reader()
     .readLines()
 
+fun readInputRaw(name: String) = Thread.currentThread().contextClassLoader.getResourceAsStream("$name.txt")!!
+    .reader()
+    .readText()
+
 /**
  * Converts string to md5 hash.
  */

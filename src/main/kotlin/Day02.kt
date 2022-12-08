@@ -1,5 +1,5 @@
 
-sealed class Item(val score: Int) : Comparable<Item> {
+private sealed class Item(val score: Int) : Comparable<Item> {
     companion object {
         fun lookupItem(itemString: String) = when (itemString) {
             "A",
