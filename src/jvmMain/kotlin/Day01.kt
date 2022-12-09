@@ -1,4 +1,3 @@
-import java.util.TreeSet
 
 fun main() {
     fun part1(input: List<String>): Int {
@@ -16,7 +15,7 @@ fun main() {
     }
 
     fun part2(input: List<String>): Int {
-        val calorieSums = TreeSet<Int>()
+        val calorieSums = sortedSetOf<Int>()
         var currentSum = 0
         input.forEach {
             if (it.isNotBlank()) {
@@ -39,5 +38,5 @@ fun main() {
 
     val input = readInput("Day01")
 //    println(part1(input))
-    println(part2(input))
+    println(part2(input))// 209481
 }

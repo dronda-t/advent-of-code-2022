@@ -1,7 +1,5 @@
-import java.util.Scanner
-import java.util.Stack
 
-fun main() {
+fun day05() {
     fun buildStacks(startingStack: List<String>): MutableMap<Int, ArrayDeque<Char>> {
         val stacks = mutableMapOf<Int, ArrayDeque<Char>>()
         for (line in startingStack){

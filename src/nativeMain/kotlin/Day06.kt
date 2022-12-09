@@ -1,5 +1,5 @@
 
-fun main() {
+fun day06() {
     fun part1(input: List<String>): Int {
         input.first().windowed(4).forEachIndexed { index, s ->
             if (s.toHashSet().size == 4) return index + 4

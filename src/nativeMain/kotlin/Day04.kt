@@ -1,5 +1,5 @@
 
-fun main() {
+fun day04() {
     fun part1(input: List<String>): Int {
         return input.map { it.split(",") }.map { (assignment1, assignment2) ->
             val range1 = assignment1.split("-")

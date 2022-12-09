@@ -55,7 +55,7 @@ sealed class Result(val score: Int) {
         }
     }
 }
-fun main() {
+fun day02() {
     fun part1(input: List<String>): Int {
         var score = 0
         input.forEach {
@@ -78,7 +78,7 @@ fun main() {
     val combinations = hashMapOf<Pair<Item, Result>, Item>()
     fun determineResult(opponentItem: Item, result: Result): Item {
         val items = listOf(Item.Rock, Item.Paper, Item.Scissors)
-        return combinations.computeIfAbsent(Pair(opponentItem, result)) { (opponentItem, result) ->
+        return combinations.getOrPut(Pair(opponentItem, result)) {
             when (result) {
                 is Result.Draw -> opponentItem
                 is Result.Win -> items.first { it > opponentItem }

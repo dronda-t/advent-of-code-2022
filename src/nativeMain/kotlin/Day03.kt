@@ -1,5 +1,5 @@
 
-fun main() {
+fun day03() {
     fun priority(char: Char): Int {
         var priority = (char.lowercaseChar() - 'a') + 1
         if (char.isUpperCase()) priority += 26
@@ -30,5 +30,5 @@ fun main() {
 
     val input = readInput("Day03")
 //    println(part1(input))
-    println(part2(input))
+    println(part2(input)) // 2518
 }
