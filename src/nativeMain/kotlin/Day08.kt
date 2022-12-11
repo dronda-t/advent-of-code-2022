@@ -7,57 +7,49 @@
 35390
  */
 private typealias Grid = List<List<Int>>
-fun main() {
-    fun isOnEdge(row: Int, column: Int, grid: List<List<Int>>): Boolean {
+fun day08() {
+    fun isOverEdge(row: Int, column: Int, grid: List<List<Int>>): Boolean {
         return when {
-            row - 1 < 0 ||
-            row + 1 > grid.lastIndex ||
-            column - 1 < 0 ||
-            column + 1 > grid[row].lastIndex -> true
+            row < 0 ||
+            row > grid.lastIndex ||
+            column < 0 ||
+            column > grid[row].lastIndex -> true
             else -> false
         }
     }
 
-    fun isVisibleOneDirection(
+    fun viewScoreOneDirection(
         rowColumn: Pair<Int, Int>,
         treeValue: Int,
         grid: Grid,
         transform: (Pair<Int, Int>) -> Pair<Int, Int>
-    ): Boolean {
+    ): Int {
+        if (isOverEdge(rowColumn.first, rowColumn.second, grid)) return 0
         val (row, column) = rowColumn
         return if (treeValue > grid[row][column]) {
-            if (isOnEdge(rowColumn.first, rowColumn.second, grid)) return true
-            isVisibleOneDirection(transform(rowColumn), treeValue, grid, transform)
+            1 + viewScoreOneDirection(transform(rowColumn), treeValue, grid, transform)
         } else {
-            false
+            1
         }
     }
 
-    fun isVisible(row: Int, column: Int, treeValue: Int, grid: List<List<Int>>): Boolean {
-        if (treeValue > grid[row - 1][column] && isVisibleOneDirection(Pair(row - 1, column), treeValue, grid) {
-                it.copy(first = it.first - 1)
-            }) {
-            return true
+    fun calcViewScore(row: Int, column: Int, treeValue: Int, grid: List<List<Int>>): Int {
+        var viewScore = viewScoreOneDirection(Pair(row - 1, column), treeValue, grid) {
+            it.copy(first = it.first - 1)
         }
-        if (treeValue > grid[row + 1][column] && isVisibleOneDirection(Pair(row + 1, column), treeValue, grid) {
-                it.copy(first = it.first + 1)
-            }) {
-            return true
+        viewScore *= viewScoreOneDirection(Pair(row + 1, column), treeValue, grid) {
+            it.copy(first = it.first + 1)
         }
-        if (treeValue > grid[row][column - 1] && isVisibleOneDirection(Pair(row, column - 1), treeValue, grid) {
-                it.copy(second = it.second - 1)
-            }) {
-            return true
+        viewScore *= viewScoreOneDirection(Pair(row, column - 1), treeValue, grid) {
+            it.copy(second = it.second - 1)
         }
-        if (treeValue > grid[row][column + 1] && isVisibleOneDirection(Pair(row, column + 1), treeValue, grid) {
-                it.copy(second = it.second + 1)
-            }) {
-            return true
+        viewScore *= viewScoreOneDirection(Pair(row, column + 1), treeValue, grid) {
+            it.copy(second = it.second + 1)
         }
-        return false
+        return viewScore
     }
 
-    fun part1(input: List<String>): Int {
+    fun part2(input: List<String>): Int {
         val grid = mutableListOf<MutableList<Int>>()
         input.forEach { y ->
             val row = mutableListOf<Int>()
@@ -67,29 +59,18 @@ fun main() {
             grid.add(row)
         }
 
-        var totalVisible = 0
-        for (rowIndex in input.indices) {
-            for (columnIndex in input[rowIndex].indices) {
-                when {
-                    isOnEdge(rowIndex, columnIndex, grid) ||
-                    isVisible(rowIndex, columnIndex, grid[rowIndex][columnIndex], grid) -> totalVisible += 1
-                    else -> { /* noop */ }
-                }
+        return input.flatMapIndexed { rowIndex, row ->
+            row.mapIndexed { columnIndex, _ ->
+                calcViewScore(rowIndex, columnIndex, grid[rowIndex][columnIndex], grid)
             }
-        }
-
-        return totalVisible
-    }
-
-    fun part2(input: List<String>): Int {
-        return 1
+        }.max()
     }
 
     // test if implementation meets criteria from the description, like:
 //    val testInput = readInput("Day08_test")
-//    println(part1(testInput))
+//    println(part2(testInput))
 
     val input = readInput("Day08")
-    println(part1(input)) // 1533
-//    println(part2(input))
+//    println(part1(input)) // 1533
+    println(part2(input))
 }
