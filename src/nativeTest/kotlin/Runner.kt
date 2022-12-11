@@ -3,6 +3,6 @@ import kotlin.test.Test
 class Runner {
     @Test
     fun run() {
-        day09()
+        day10()
     }
 }
