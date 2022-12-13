@@ -30,7 +30,6 @@ fun day10() {
         var x = 1
         var cycle = 1
         fun range() = (x - 1).coerceAtLeast(0)..(x + 1).coerceAtMost(40)
-        var signalStrengths = 0
         val display = mutableListOf<MutableList<Char>>()
         while (iterator.hasNext() || instructions.isNotEmpty()) {
             if (cycle % 40 == 1) display.add(mutableListOf())
