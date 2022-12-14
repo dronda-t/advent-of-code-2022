@@ -20,13 +20,9 @@ fun CharSequence.reader() = object : StringReader {
 }
 
 fun day13() {
-    data class Comparison(
-        val left: PacketList,
-        val right: PacketList
-    )
     fun String.parsePacketList(): PacketList {
         val lists = ArrayDeque<MutableList<PacketType>>().apply { add(mutableListOf()) }
-        val reader = reader()
+        val reader = removeSurrounding("[", "]").reader()
         while (reader.hasNext()) {
             when (val char = reader.next()) {
                 '[' -> lists.addLast(mutableListOf())
@@ -50,57 +46,38 @@ fun day13() {
         }
         return PacketList(lists.last())
     }
-    fun String.stripEnds() = removeSurrounding("[", "]")
 
-    fun runComparison(comparison: Comparison): ComparisonResult {
-        var pos = 0
-        // sooo gross
-        while (true) {
-            val left = comparison.left.list.getOrNull(pos)
-            val right = comparison.right.list.getOrNull(pos)
-
-            if (left == null && right == null) return ComparisonResult.NoAction
-            if (comparison.left.list.size != comparison.right.list.size ) {
-                if (left == null) return ComparisonResult.CorrectOrder
-                if (right == null) return ComparisonResult.WrongOrder
+    fun comparator(left: PacketType, right: PacketType): Int {
+        if (left is PacketInt && right is PacketInt) return left.value.compareTo(right.value)
+        if (left is PacketList && right is PacketList) {
+            var pos = 0
+            while (pos < left.list.size && pos < right.list.size) {
+                val comparison = comparator(left.list[pos], right.list[pos])
+                if (comparison != 0) return comparison
+                pos += 1
             }
-
-            if (left is PacketInt && right is PacketInt) {
-                if (left.value < right.value) return ComparisonResult.CorrectOrder
-                if (left.value > right.value) return ComparisonResult.WrongOrder
-            } else if (left is PacketInt && right is PacketList) {
-                runComparison(Comparison(PacketList(listOf(left)), right)).onTakeAction {
-                    return it
-                }
-            } else if (left is PacketList && right is PacketInt) {
-                runComparison(Comparison(left, PacketList(listOf(right)))).onTakeAction {
-                    return it
-                }
-            } else if (left is PacketList && right is PacketList) {
-                runComparison(Comparison(left, right)).onTakeAction { return it }
-            }
-            pos += 1
+            return left.list.size.compareTo(right.list.size)
         }
+        if (left is PacketList && right is PacketInt) return comparator(left, PacketList(listOf(right)))
+        if (left is PacketInt && right is PacketList) return comparator(PacketList(listOf(left)), right)
+        error("Invalid state")
     }
 
     fun part1(input: List<String>): Int {
         val iterator = input.listIterator()
-        val comparisons = buildList {
+        val comparisons = buildList<PacketType> {
             while (iterator.hasNext()) {
-                val comparison = Comparison(
-                    iterator.next().stripEnds().parsePacketList(),
-                    iterator.next().stripEnds().parsePacketList(),
-                )
-                add(comparison)
+                add(iterator.next().parsePacketList(),)
+                add(iterator.next().parsePacketList(),)
                 if (iterator.hasNext()) {
                     iterator.next()
                 }
             }
-        }
+        }.windowed(2, 2).map { it[0] to it[1] }
 
         val rightOrder = mutableListOf<Int>()
         for (index in comparisons.indices) {
-            if (runComparison(comparisons[index]) == ComparisonResult.CorrectOrder) {
+            if (comparator(comparisons[index].first, comparisons[index].second) == -1) {
                 rightOrder.add(index + 1)
             }
         }
@@ -109,41 +86,27 @@ fun day13() {
     }
 
     fun part2(input: List<String>): Int {
-        val packets = input.let {it + listOf("[[2]]", "[[6]]") }
-            .filterNot { it.isEmpty() }
-            .map { it.stripEnds().parsePacketList() }
-
-        val sortedPackets = packets.sortedWith { packet1, packet2 ->
-            when (runComparison(Comparison(packet1, packet2))) {
-                ComparisonResult.CorrectOrder,
-                ComparisonResult.NoAction -> -1
-                ComparisonResult.WrongOrder -> 1
+        val dividerPacket1 = "[[2]]".parsePacketList()
+        val dividerPacket2 = "[[6]]".parsePacketList()
+        val packets = input.filterNot { it.isEmpty() }
+            .map { it.parsePacketList() }
+            .plus(listOf(dividerPacket1, dividerPacket2))
+            .sortedWith { packet1, packet2 ->
+                comparator(packet1, packet2)
             }
-        }
-        val packet1 = sortedPackets.indexOf(PacketList(listOf(PacketList(listOf(PacketInt(2))))))
-        val packet2 = sortedPackets.indexOf(PacketList(listOf(PacketList(listOf(PacketInt(6))))))
+
+        val packet1 = packets.indexOf(dividerPacket1)
+        val packet2 = packets.indexOf(dividerPacket2)
 
         return (packet1 + 1) * (packet2 + 1)
     }
 
     // test if implementation meets criteria from the description, like:
 //    val testInput = readInput("Day13_test")
-//    println(part2(testInput))
+//    println(part1(testInput))
 
     val input = readInput("Day13")
 //    println(part1(input)) // 5503
-    println(part2(input))
-}
-
-sealed interface ComparisonResult {
-    object NoAction : ComparisonResult
-    object CorrectOrder : ComparisonResult
-    object WrongOrder : ComparisonResult
-
-}
-inline fun ComparisonResult.onTakeAction(body: (action: ComparisonResult) -> Unit) {
-    if (this !is ComparisonResult.NoAction) {
-        body(this)
-    }
+    println(part2(input)) // 20952
 }
 
